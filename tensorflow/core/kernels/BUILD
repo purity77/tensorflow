@@ -711,6 +711,7 @@ tf_kernel_libraries(
         "draw_bounding_box_op",
         "encode_jpeg_op",
         "attention_ops",
+        "extract_patches",
         "encode_png_op",
         "random_crop_op",
         "resize_area_op",

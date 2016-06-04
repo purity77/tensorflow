@@ -185,6 +185,7 @@ ops.NoGradient('DrawBoundingBoxes')
 ops.NoGradient('SampleDistortedBoundingBox')
 # TODO(bsteiner): Implement the gradient function for extract_glimpse
 ops.NoGradient("ExtractGlimpse")
+ops.NoGradient("ExtractPatches")
 
 
 def _ImageDimensions(images):
@@ -1254,6 +1255,15 @@ def _ExtractGlimpseShape(op):
   return [tensor_shape.TensorShape(
       [input_shape[0], height, width, input_shape[3]])]
 
+@ops.RegisterShape("ExtractPatches")
+def _ExtractPatchesShape(op):
+  """Shape function for ExtractPatches op."""
+  batch_size, _, _, depth = op.inputs[0].get_shape().with_rank(4)
+  height, width = tensor_util.constant_value(op.inputs[1])
+  _, num_patches, _ = op.inputs[2].get_shape().with_rank(3)
+
+  return [tensor_shape.TensorShape(
+      [batch_size, num_patches, height, width, depth])]
 
 __all__ = make_all(__name__)
 # ResizeMethod is not documented, but is documented in functions that use it.
