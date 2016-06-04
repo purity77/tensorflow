@@ -1,4 +1,4 @@
-/* Copyright 2016 Google Inc. All Rights Reserved.
+/* Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -197,7 +197,7 @@ class Conv3DBackpropInputOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(
     Name("Conv3DBackpropInput").Device(DEVICE_CPU).TypeConstraint<float>("T"),
     Conv3DBackpropInputOp<CPUDevice, float>);
-#ifndef __ANDROID__
+#ifndef IS_MOBILE_PLATFORM
 REGISTER_KERNEL_BUILDER(
     Name("Conv3DBackpropInput").Device(DEVICE_CPU).TypeConstraint<double>("T"),
     Conv3DBackpropInputOp<CPUDevice, double>);
@@ -306,7 +306,7 @@ class Conv3DBackpropFilterOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(
     Name("Conv3DBackpropFilter").Device(DEVICE_CPU).TypeConstraint<float>("T"),
     Conv3DBackpropFilterOp<CPUDevice, float>);
-#ifndef __ANDROID__
+#ifndef IS_MOBILE_PLATFORM
 REGISTER_KERNEL_BUILDER(
     Name("Conv3DBackpropFilter").Device(DEVICE_CPU).TypeConstraint<double>("T"),
     Conv3DBackpropFilterOp<CPUDevice, double>);

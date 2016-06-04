@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc. All Rights Reserved.
+# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -571,7 +571,7 @@ ops.NoGradient("LogicalNot")
 def _SelectGrad(op, grad):
   c = op.inputs[0]
   x = op.inputs[1]
-  zeros = array_ops.zeros(array_ops.shape(x), dtype=x.dtype)
+  zeros = array_ops.zeros_like(x)
   return (None, math_ops.select(c, grad, zeros),
           math_ops.select(c, zeros, grad))
 
@@ -681,9 +681,15 @@ ops.NoGradient("LinSpace")
 
 
 @ops.RegisterGradient("Complex")
-def _ComplexGrad(_, grad):
+def _ComplexGrad(op, grad):
   """Returns the real and imaginary components of 'grad', respectively."""
-  return math_ops.real(grad), math_ops.imag(grad)
+  x = op.inputs[0]
+  y = op.inputs[1]
+  sx = array_ops.shape(x)
+  sy = array_ops.shape(y)
+  rx, ry = gen_array_ops._broadcast_gradient_args(sx, sy)
+  return (array_ops.reshape(math_ops.reduce_sum(math_ops.real(grad), rx), sx),
+          array_ops.reshape(math_ops.reduce_sum(math_ops.imag(grad), ry), sy))
 
 
 @ops.RegisterGradient("Real")

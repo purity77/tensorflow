@@ -1,4 +1,4 @@
-/* Copyright 2016 Google Inc. All Rights Reserved.
+/* Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ REGISTER_KERNEL_BUILDER(
     Name("Conv3D").Device(DEVICE_CPU).TypeConstraint<float>("T"),
     Conv3DOp<CPUDevice, float>);
 
-#ifndef __ANDROID__
+#ifndef IS_MOBILE_PLATFORM
 REGISTER_KERNEL_BUILDER(
     Name("Conv3D").Device(DEVICE_CPU).TypeConstraint<double>("T"),
     Conv3DOp<CPUDevice, double>);
