@@ -51,7 +51,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -309,7 +316,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -577,7 +591,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -713,7 +734,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowClassifier.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowClassifier.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -790,17 +811,17 @@ A classifier for TensorFlow DNN models.
         hidden_units=[1024, 512, 256])
 
     # Input builders
-    def input_fn_train: # returns X, Y
+    def input_fn_train: # returns x, Y
       pass
     estimator.fit(input_fn=input_fn_train)
 
-    def input_fn_eval: # returns X, Y
+    def input_fn_eval: # returns x, Y
       pass
-    estimator.evaluate(input_fn_eval)
-    estimator.predict(x)
+    estimator.evaluate(input_fn=input_fn_eval)
+    estimator.predict(x=x)
     ```
 
-  Input of `fit`, `train`, and `evaluate` should have following features,
+  Input of `fit` and `evaluate` should have following features,
     otherwise there will be a `KeyError`:
       if `weight_column_name` is not `None`, a feature with
         `key=weight_column_name` whose value is a `Tensor`.
@@ -878,7 +899,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -1134,17 +1162,17 @@ A regressor for TensorFlow DNN models.
         hidden_units=[1024, 512, 256])
 
     # Input builders
-    def input_fn_train: # returns X, Y
+    def input_fn_train: # returns x, Y
       pass
     estimator.fit(input_fn=input_fn_train)
 
-    def input_fn_eval: # returns X, Y
+    def input_fn_eval: # returns x, Y
       pass
-    estimator.evaluate(input_fn_eval)
-    estimator.predict(x)
+    estimator.evaluate(input_fn=input_fn_eval)
+    estimator.predict(x=x)
     ```
 
-  Input of `fit`, `train`, and `evaluate` should have following features,
+  Input of `fit` and `evaluate` should have following features,
     otherwise there will be a `KeyError`:
       if `weight_column_name` is not `None`, a feature with
         `key=weight_column_name` whose value is a `Tensor`.
@@ -1174,9 +1202,13 @@ Parameters:
   activation_fn: Activation function applied to each layer. If `None`, will
     use `tf.nn.relu`.
   dropout: When not None, the probability we will drop out a given coordinate.
+  gradient_clip_norm: A float > 0. If provided, gradients are clipped
+    to their global norm with this clipping ratio. See tf.clip_by_global_norm
+    for more details.
+  config: RunConfig object to configure the runtime settings.
 - - -
 
-#### `tf.contrib.learn.DNNRegressor.__init__(hidden_units, feature_columns=None, model_dir=None, weight_column_name=None, optimizer=None, activation_fn=relu, dropout=None, config=None)` {#DNNRegressor.__init__}
+#### `tf.contrib.learn.DNNRegressor.__init__(hidden_units, feature_columns=None, model_dir=None, weight_column_name=None, optimizer=None, activation_fn=relu, dropout=None, gradient_clip_norm=None, config=None)` {#DNNRegressor.__init__}
 
 
 
@@ -1222,7 +1254,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -1492,7 +1531,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -1628,7 +1674,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowDNNClassifier.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowDNNClassifier.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -1737,7 +1783,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -1873,7 +1926,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowDNNRegressor.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowDNNRegressor.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -1936,7 +1989,7 @@ component of a nested object.
 Base class for all TensorFlow estimators.
 
 Parameters:
-  model_fn: Model function, that takes input X, y tensors and outputs
+  model_fn: Model function, that takes input `x`, `y` tensors and outputs
     prediction and loss tensors.
   n_classes: Number of classes in the target.
   batch_size: Mini batch size.
@@ -2114,10 +2167,10 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowEstimator.predict(x, axis=1, batch_size=None)` {#TensorFlowEstimator.predict}
 
-Predict class or regression for X.
+Predict class or regression for `x`.
 
-For a classification model, the predicted class for each sample in X is
-returned. For a regression model, the predicted value based on X is
+For a classification model, the predicted class for each sample in `x` is
+returned. For a regression model, the predicted value based on `x` is
 returned.
 
 ##### Args:
@@ -2142,7 +2195,7 @@ returned.
 
 #### `tf.contrib.learn.TensorFlowEstimator.predict_proba(x, batch_size=None)` {#TensorFlowEstimator.predict_proba}
 
-Predict class probability of the input samples X.
+Predict class probability of the input samples `x`.
 
 ##### Args:
 
@@ -2235,20 +2288,36 @@ Linear classifier model.
   installed_x_impression = crossed_column(
       [installed_app_id, impression_app_id])
 
+  # Estimator using the default optimizer.
   estimator = LinearClassifier(
       feature_columns=[impression_app_id, installed_x_impression])
 
+  # Or estimator using the FTRL optimizer with regularization.
+  estimator = LinearClassifier(
+      feature_columns=[impression_app_id, installed_x_impression],
+      optimizer=tf.train.FtrlOptimizer(
+        learning_rate=0.1,
+        l1_regularization_strength=0.001
+      ))
+
+  # Or estimator using the SDCAOptimizer.
+  estimator = LinearClassifier(
+     feature_columns=[impression_app_id, installed_x_impression],
+     optimizer=tf.contrib.learn.SDCAOptimizer(
+       example_id_column='example_id', symmetric_l2_regularization=2.0
+     ))
+
   # Input builders
-  def input_fn_train: # returns X, Y
+  def input_fn_train: # returns x, y
     ...
-  def input_fn_eval: # returns X, Y
+  def input_fn_eval: # returns x, y
     ...
   estimator.fit(input_fn=input_fn_train)
   estimator.evaluate(input_fn=input_fn_eval)
-  estimator.predict(x)
+  estimator.predict(x=x)
   ```
 
-  Input of `fit`, `train`, and `evaluate` should have following features,
+  Input of `fit` and `evaluate` should have following features,
     otherwise there will be a `KeyError`:
       if `weight_column_name` is not `None`, a feature with
         `key=weight_column_name` whose value is a `Tensor`.
@@ -2270,11 +2339,16 @@ Parameters:
   weight_column_name: A string defining feature column name representing
     weights. It is used to down weight or boost examples during training. It
     will be multiplied by the loss of the example.
-  optimizer: An instance of `tf.Optimizer` used to train the model. If `None`,
-    will use an Ftrl optimizer.
+  optimizer: The optimizer used to train the model. If specified, it should be
+    either an instance of `tf.Optimizer` or the SDCAOptimizer. If `None`, the
+    Ftrl optimizer will be used.
+  gradient_clip_norm: A float > 0. If provided, gradients are clipped
+    to their global norm with this clipping ratio. See tf.clip_by_global_norm
+    for more details.
+  config: RunConfig object to configure the runtime settings.
 - - -
 
-#### `tf.contrib.learn.LinearClassifier.__init__(feature_columns=None, model_dir=None, n_classes=2, weight_column_name=None, optimizer=None, config=None)` {#LinearClassifier.__init__}
+#### `tf.contrib.learn.LinearClassifier.__init__(feature_columns=None, model_dir=None, n_classes=2, weight_column_name=None, optimizer=None, gradient_clip_norm=None, config=None)` {#LinearClassifier.__init__}
 
 
 
@@ -2320,7 +2394,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -2573,16 +2654,16 @@ Linear regressor model.
       feature_columns=[impression_app_id, installed_x_impression])
 
   # Input builders
-  def input_fn_train: # returns X, Y
+  def input_fn_train: # returns x, y
     ...
-  def input_fn_eval: # returns X, Y
+  def input_fn_eval: # returns x, y
     ...
   estimator.fit(input_fn=input_fn_train)
   estimator.evaluate(input_fn=input_fn_eval)
-  estimator.predict(x)
+  estimator.predict(x=x)
   ```
 
-  Input of `fit`, `train`, and `evaluate` should have following features,
+  Input of `fit` and `evaluate` should have following features,
     otherwise there will be a KeyError:
       if `weight_column_name` is not None:
         key=weight_column_name, value=a `Tensor`
@@ -2652,7 +2733,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -2922,7 +3010,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -3058,7 +3153,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowLinearClassifier.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowLinearClassifier.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -3167,7 +3262,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -3303,7 +3405,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowLinearRegressor.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowLinearRegressor.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -3371,7 +3473,7 @@ Parameters:
   num_layers: The number of layers of the rnn model.
   input_op_fn: Function that will transform the input tensor, such as
     creating word embeddings, byte list, etc. This takes
-    an argument X for input and returns transformed X.
+    an argument x for input and returns transformed x.
   bidirectional: boolean, Whether this is a bidirectional rnn.
   sequence_length: If sequence_length is provided, dynamic calculation is
     performed. This saves computational time when unrolling past max sequence
@@ -3554,10 +3656,10 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowRNNClassifier.predict(x, axis=1, batch_size=None)` {#TensorFlowRNNClassifier.predict}
 
-Predict class or regression for X.
+Predict class or regression for `x`.
 
-For a classification model, the predicted class for each sample in X is
-returned. For a regression model, the predicted value based on X is
+For a classification model, the predicted class for each sample in `x` is
+returned. For a regression model, the predicted value based on `x` is
 returned.
 
 ##### Args:
@@ -3582,7 +3684,7 @@ returned.
 
 #### `tf.contrib.learn.TensorFlowRNNClassifier.predict_proba(x, batch_size=None)` {#TensorFlowRNNClassifier.predict_proba}
 
-Predict class probability of the input samples X.
+Predict class probability of the input samples `x`.
 
 ##### Args:
 
@@ -3680,7 +3782,7 @@ Parameters:
   num_layers: The number of layers of the rnn model.
   input_op_fn: Function that will transform the input tensor, such as
     creating word embeddings, byte list, etc. This takes
-    an argument X for input and returns transformed X.
+    an argument x for input and returns transformed x.
   bidirectional: boolean, Whether this is a bidirectional rnn.
   sequence_length: If sequence_length is provided, dynamic calculation is
     performed. This saves computational time when unrolling past max sequence
@@ -3863,10 +3965,10 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowRNNRegressor.predict(x, axis=1, batch_size=None)` {#TensorFlowRNNRegressor.predict}
 
-Predict class or regression for X.
+Predict class or regression for `x`.
 
-For a classification model, the predicted class for each sample in X is
-returned. For a regression model, the predicted value based on X is
+For a classification model, the predicted class for each sample in `x` is
+returned. For a regression model, the predicted value based on `x` is
 returned.
 
 ##### Args:
@@ -3891,7 +3993,7 @@ returned.
 
 #### `tf.contrib.learn.TensorFlowRNNRegressor.predict_proba(x, batch_size=None)` {#TensorFlowRNNRegressor.predict_proba}
 
-Predict class probability of the input samples X.
+Predict class probability of the input samples `x`.
 
 ##### Args:
 
@@ -4030,7 +4132,14 @@ Evaluates given model with provided evaluation data.
 *  <b>`steps`</b>: Number of steps for which to evaluate model. If `None`, evaluate
     forever.
 *  <b>`metrics`</b>: Dict of metric ops to run. If None, the default metric functions
-    are used; if {}, no metrics are used.
+    are used; if {}, no metrics are used. If model has one output (i.e.,
+    returning single predction), keys are `str`, e.g. `'accuracy'` - just a
+    name of the metric that will show up in the logs / summaries.
+    Otherwise, keys are tuple of two `str`, e.g. `('accuracy', 'classes')`
+    - name of the metric and name of `Tensor` in the predictions to run
+    this metric on. Metric ops should support streaming, e.g., returning
+    update_op and value tensors. See more details in
+    ../../../../metrics/python/metrics/ops/streaming_metrics.py.
 *  <b>`name`</b>: Name of the evaluation if user needs to run multiple evaluation on
     different data sets, such as evaluate on training data vs test data.
 
@@ -4166,7 +4275,7 @@ to converge, and you want to split up training into subparts.
 
 #### `tf.contrib.learn.TensorFlowRegressor.predict(x=None, input_fn=None, batch_size=None, outputs=None, axis=1)` {#TensorFlowRegressor.predict}
 
-
+Predict class or regression for `x`.
 
 
 - - -
@@ -4238,50 +4347,33 @@ Perform various training, evaluation, and inference actions on a graph.
 ### `class tf.contrib.learn.RunConfig` {#RunConfig}
 
 This class specifies the specific configurations for the run.
-
-Parameters:
-  execution_mode: Runners use this flag to execute different tasks, like
-    training vs evaluation. 'all' (the default) executes both training and
-    eval.
-  master: TensorFlow master. Empty string (the default) for local.
-  task: Task id of the replica running the training (default: 0).
-  num_ps_replicas: Number of parameter server tasks to use (default: 0).
-  training_worker_session_startup_stagger_secs: Seconds to sleep between the
-    startup of each worker task session (default: 5).
-  training_worker_max_startup_secs: Max seconds to wait before starting any
-    worker (default: 60).
-  eval_delay_secs: Number of seconds between the beginning of each eval run.
-    If one run takes more than this amount of time, the next run will start
-    immediately once that run completes (default 60).
-  eval_steps: Number of steps to run in each eval (default: 100).
-  num_cores: Number of cores to be used (default: 4).
-  verbose: Controls the verbosity, possible values:
-    0: the algorithm and debug information is muted.
-    1: trainer prints the progress.
-    2: log device placement is printed.
-  gpu_memory_fraction: Fraction of GPU memory used by the process on
-    each GPU uniformly on the same machine.
-  tf_random_seed: Random seed for TensorFlow initializers.
-    Setting this value allows consistency between reruns.
-  keep_checkpoint_max: The maximum number of recent checkpoint files to keep.
-    As new files are created, older files are deleted.
-    If None or 0, all checkpoint files are kept.
-    Defaults to 5 (that is, the 5 most recent checkpoint files are kept.)
-  keep_checkpoint_every_n_hours: Number of hours between each checkpoint
-    to be saved. The default value of 10,000 hours effectively disables
-    the feature.
-
-Attributes:
-  tf_master: Tensorflow master.
-  tf_config: Tensorflow Session Config proto.
-  tf_random_seed: Tensorflow random seed.
-  keep_checkpoint_max: Maximum number of checkpoints to keep.
-  keep_checkpoint_every_n_hours: Number of hours between each checkpoint.
 - - -
 
-#### `tf.contrib.learn.RunConfig.__init__(execution_mode='all', master='', task=0, num_ps_replicas=0, training_worker_session_startup_stagger_secs=5, training_worker_max_startup_secs=60, eval_delay_secs=60, eval_steps=100, num_cores=4, verbose=1, gpu_memory_fraction=1, tf_random_seed=42, keep_checkpoint_max=5, keep_checkpoint_every_n_hours=10000)` {#RunConfig.__init__}
+#### `tf.contrib.learn.RunConfig.__init__(master='', task=0, num_ps_replicas=0, num_cores=4, log_device_placement=False, gpu_memory_fraction=1, tf_random_seed=42, save_summary_steps=100, save_checkpoints_secs=60, keep_checkpoint_max=5, keep_checkpoint_every_n_hours=10000)` {#RunConfig.__init__}
+
+Constructor.
+
+##### Args:
 
 
+*  <b>`master`</b>: TensorFlow master. Empty string (the default) for local.
+*  <b>`task`</b>: Task id of the replica running the training (default: 0).
+*  <b>`num_ps_replicas`</b>: Number of parameter server tasks to use (default: 0).
+*  <b>`num_cores`</b>: Number of cores to be used (default: 4).
+*  <b>`log_device_placement`</b>: Log the op placement to devices (default: False).
+*  <b>`gpu_memory_fraction`</b>: Fraction of GPU memory used by the process on
+    each GPU uniformly on the same machine.
+*  <b>`tf_random_seed`</b>: Random seed for TensorFlow initializers.
+    Setting this value allows consistency between reruns.
+*  <b>`save_summary_steps`</b>: Save summaries every this many steps.
+*  <b>`save_checkpoints_secs`</b>: Save checkpoints every this many seconds.
+*  <b>`keep_checkpoint_max`</b>: The maximum number of recent checkpoint files to
+    keep. As new files are created, older files are deleted. If None or 0,
+    all checkpoint files are kept. Defaults to 5 (that is, the 5 most recent
+    checkpoint files are kept.)
+*  <b>`keep_checkpoint_every_n_hours`</b>: Number of hours between each checkpoint
+    to be saved. The default value of 10,000 hours effectively disables
+    the feature.
 
 
 
@@ -4394,7 +4486,7 @@ Run `output_dict` tensors `n` times, with the same `feed_dict` each run.
 
 - - -
 
-### `tf.contrib.learn.train(graph, output_dir, train_op, loss_op, global_step_tensor=None, init_op=None, init_feed_dict=None, init_fn=None, log_every_steps=10, supervisor_is_chief=True, supervisor_master='', supervisor_save_model_secs=600, supervisor_save_summaries_steps=100, feed_fn=None, max_steps=None, fail_on_nan_loss=True, monitors=None)` {#train}
+### `tf.contrib.learn.train(graph, output_dir, train_op, loss_op, global_step_tensor=None, init_op=None, init_feed_dict=None, init_fn=None, log_every_steps=10, supervisor_is_chief=True, supervisor_master='', supervisor_save_model_secs=600, supervisor_save_summaries_steps=100, feed_fn=None, steps=None, fail_on_nan_loss=True, monitors=None)` {#train}
 
 Train a model.
 
@@ -4437,7 +4529,7 @@ program is terminated with exit code 1.
     `supervisor_save_summaries_steps` seconds when training.
 *  <b>`feed_fn`</b>: A function that is called every iteration to produce a `feed_dict`
     passed to `session.run` calls. Optional.
-*  <b>`max_steps`</b>: Train until `global_step_tensor` evaluates to this value.
+*  <b>`steps`</b>: Trains for this many steps (e.g. current global step + `steps`).
 *  <b>`fail_on_nan_loss`</b>: If true, raise `NanLossDuringTrainingError` if `loss_op`
     evaluates to `NaN`. If false, continue training as if nothing happened.
 *  <b>`monitors`</b>: List of `BaseMonitor` subclass instances. Used for callbacks
@@ -4569,7 +4661,7 @@ All ops are added to the default graph.
 *  <b>`num_epochs`</b>: Integer specifying the number of times to read through the
     dataset. If None, cycles through the dataset forever. NOTE - If specified,
     creates a variable that must be initialized, so call
-    tf.initialize_all_variables() as shown in the tests.
+    tf.initialize_local_variables() as shown in the tests.
 *  <b>`queue_capacity`</b>: Capacity for input queue.
 *  <b>`reader_num_threads`</b>: The number of threads to read examples.
 *  <b>`parser_num_threads`</b>: The number of threads to parse examples.
@@ -4605,7 +4697,7 @@ See more detailed description in `read_examples`.
 *  <b>`num_epochs`</b>: Integer specifying the number of times to read through the
     dataset. If None, cycles through the dataset forever. NOTE - If specified,
     creates a variable that must be initialized, so call
-    tf.initialize_all_variables() as shown in the tests.
+    tf.initialize_local_variables() as shown in the tests.
 *  <b>`queue_capacity`</b>: Capacity for input queue.
 *  <b>`reader_num_threads`</b>: The number of threads to read examples.
 *  <b>`parser_num_threads`</b>: The number of threads to parse examples.

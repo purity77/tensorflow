@@ -44,17 +44,17 @@ class DNNClassifier(dnn_linear_combined.DNNLinearCombinedClassifier):
           hidden_units=[1024, 512, 256])
 
       # Input builders
-      def input_fn_train: # returns X, Y
+      def input_fn_train: # returns x, Y
         pass
       estimator.fit(input_fn=input_fn_train)
 
-      def input_fn_eval: # returns X, Y
+      def input_fn_eval: # returns x, Y
         pass
-      estimator.evaluate(input_fn_eval)
-      estimator.predict(x)
+      estimator.evaluate(input_fn=input_fn_eval)
+      estimator.predict(x=x)
       ```
 
-    Input of `fit`, `train`, and `evaluate` should have following features,
+    Input of `fit` and `evaluate` should have following features,
       otherwise there will be a `KeyError`:
         if `weight_column_name` is not `None`, a feature with
           `key=weight_column_name` whose value is a `Tensor`.
@@ -139,17 +139,17 @@ class DNNRegressor(dnn_linear_combined.DNNLinearCombinedRegressor):
           hidden_units=[1024, 512, 256])
 
       # Input builders
-      def input_fn_train: # returns X, Y
+      def input_fn_train: # returns x, Y
         pass
       estimator.fit(input_fn=input_fn_train)
 
-      def input_fn_eval: # returns X, Y
+      def input_fn_eval: # returns x, Y
         pass
-      estimator.evaluate(input_fn_eval)
-      estimator.predict(x)
+      estimator.evaluate(input_fn=input_fn_eval)
+      estimator.predict(x=x)
       ```
 
-    Input of `fit`, `train`, and `evaluate` should have following features,
+    Input of `fit` and `evaluate` should have following features,
       otherwise there will be a `KeyError`:
         if `weight_column_name` is not `None`, a feature with
           `key=weight_column_name` whose value is a `Tensor`.
@@ -179,6 +179,10 @@ class DNNRegressor(dnn_linear_combined.DNNLinearCombinedRegressor):
     activation_fn: Activation function applied to each layer. If `None`, will
       use `tf.nn.relu`.
     dropout: When not None, the probability we will drop out a given coordinate.
+    gradient_clip_norm: A float > 0. If provided, gradients are clipped
+      to their global norm with this clipping ratio. See tf.clip_by_global_norm
+      for more details.
+    config: RunConfig object to configure the runtime settings.
   """
 
   def __init__(self,
@@ -189,15 +193,18 @@ class DNNRegressor(dnn_linear_combined.DNNLinearCombinedRegressor):
                optimizer=None,
                activation_fn=nn.relu,
                dropout=None,
+               gradient_clip_norm=None,
                config=None):
-    super(DNNRegressor, self).__init__(model_dir=model_dir,
-                                       weight_column_name=weight_column_name,
-                                       dnn_feature_columns=feature_columns,
-                                       dnn_optimizer=optimizer,
-                                       dnn_hidden_units=hidden_units,
-                                       dnn_activation_fn=activation_fn,
-                                       dnn_dropout=dropout,
-                                       config=config)
+    super(DNNRegressor, self).__init__(
+        model_dir=model_dir,
+        weight_column_name=weight_column_name,
+        dnn_feature_columns=feature_columns,
+        dnn_optimizer=optimizer,
+        dnn_hidden_units=hidden_units,
+        dnn_activation_fn=activation_fn,
+        dnn_dropout=dropout,
+        gradient_clip_norm=gradient_clip_norm,
+        config=config)
 
   def _get_train_ops(self, features, targets):
     """See base class."""
