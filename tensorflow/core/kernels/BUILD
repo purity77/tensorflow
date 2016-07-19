@@ -1662,6 +1662,7 @@ filegroup(
         "dense_update_ops.cc",
         "dense_update_ops.h",
         "example_parsing_ops.cc",
+        "extract_patches.cc",
         "fill_functor.h",
         "gather_op.cc",
         "gather_op.h",
@@ -1676,6 +1677,8 @@ filegroup(
         "ops_util.h",
         "pack_op.cc",
         "pooling_ops_common.h",
+        "random_op.cc",
+        "random_op.h",
         "reshape_op.cc",
         "reshape_op.h",
         "reverse_sequence_op.cc",
@@ -1867,6 +1870,8 @@ cc_library(
         "//tensorflow:android": [
             "//tensorflow/core/kernels:android_core_ops",
             "//tensorflow/core/kernels:android_extended_ops",
+            "//tensorflow/contrib/quantization/kernels:android_ops",
+            "//tensorflow/contrib/quantization:android_ops"
         ],
         "//conditions:default": [],
     }),

@@ -66,9 +66,9 @@ class QuantizeV2Op : public OpKernel {
 
     float min_range;
     float max_range;
-    OP_REQUIRES(ctx, !(input_max_range < input_min_range),
-                errors::InvalidArgument(
-                    "input_max_range must be larger than input_min_range."));
+    // OP_REQUIRES(ctx, !(input_max_range < input_min_range),
+    //          errors::InvalidArgument(
+    //              "input_max_range must be larger than input_min_range."));
 
     // When the minimum and maximum ranges are too close together, nudge them
     // apart by a small value so that they are slightly different. This helps

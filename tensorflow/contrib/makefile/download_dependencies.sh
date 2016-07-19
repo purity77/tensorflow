@@ -18,7 +18,7 @@ DOWNLOADS_DIR=tensorflow/contrib/makefile/downloads
 
 mkdir ${DOWNLOADS_DIR}
 
-EIGEN_HASH=62a2305d5734
+EIGEN_HASH=5f86b31739cd
 curl "https://bitbucket.org/eigen/eigen/get/${EIGEN_HASH}.tar.gz" \
 -o /tmp/eigen-${EIGEN_HASH}.tar.gz
 tar xzf /tmp/eigen-${EIGEN_HASH}.tar.gz -C ${DOWNLOADS_DIR}
